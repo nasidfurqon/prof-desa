@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LocationReferenceType {
+  ORGANIZATION
+  UMKM
+  SCHOOL
+}
+
+enum NewsRelatedType {
+  GENERAL
+  ORGANIZATION
+  UMKM
+  SCHOOL
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  photo     String?
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  news News[]
+
+  @@map("master_users")
+}
+
+model Page {
+  id        Int      @id @default(autoincrement())
+  pageKey   String   @unique @map("page_key")
+  title     String
+  content   String   @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("master_pages")
+}
+
+model Organization {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String   @db.Text
+  phone       String?
+  email       String?
+  address     String?
+  thumbnail   String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  images OrganizationImage[]
+
+  @@map("master_organizations")
+}
+
+model OrganizationImage {
+  id             Int          @id @default(autoincrement())
+  organizationId Int          @map("organization_id")
+  image          String
+  caption        String?
+  sortOrder      Int          @default(0) @map("sort_order")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("organization_images")
+}
+
+model Umkm {
+  id          Int      @id @default(autoincrement())
+  name        String
+  ownerName   String   @map("owner_name")
+  phone       String?
+  description String   @db.Text
+  address     String?
+  thumbnail   String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  images UmkmImage[]
+
+  @@map("master_umkms")
+}
+
+model UmkmImage {
+  id        Int    @id @default(autoincrement())
+  umkmId    Int    @map("umkm_id")
+  image     String
+  caption   String?
+  sortOrder Int    @default(0) @map("sort_order")
+  umkm      Umkm   @relation(fields: [umkmId], references: [id], onDelete: Cascade)
+
+  @@map("umkm_images")
+}
+
+model School {
+  id          Int      @id @default(autoincrement())
+  name        String
+  level       String
+  description String   @db.Text
+  address     String?
+  phone       String?
+  thumbnail   String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  images SchoolImage[]
+
+  @@map("master_schools")
+}
+
+model SchoolImage {
+  id        Int    @id @default(autoincrement())
+  schoolId  Int    @map("school_id")
+  image     String
+  caption   String?
+  sortOrder Int    @default(0) @map("sort_order")
+  school    School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@map("school_images")
+}
+
+model Location {
+  id            Int                    @id @default(autoincrement())
+  referenceType LocationReferenceType  @map("reference_type")
+  referenceId   Int                    @map("reference_id")
+  latitude      Decimal                @db.Decimal(10, 7)
+  longitude     Decimal                @db.Decimal(10, 7)
+  address       String?
+  createdAt     DateTime               @default(now()) @map("created_at")
+
+  @@unique([referenceType, referenceId])
+  @@map("master_locations")
+}
+
+model News {
+  id          Int             @id @default(autoincrement())
+  title       String
+  slug        String          @unique
+  summary     String
+  content     String          @db.Text
+  thumbnail   String?
+  relatedType NewsRelatedType @default(GENERAL) @map("related_type")
+  relatedId   Int?            @map("related_id")
+  publishedAt DateTime?       @map("published_at")
+  createdBy   Int?            @map("created_by")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  author User?       @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  images NewsImage[]
+
+  @@map("news")
+}
+
+model NewsImage {
+  id        Int    @id @default(autoincrement())
+  newsId    Int    @map("news_id")
+  image     String
+  caption   String?
+  sortOrder Int    @default(0) @map("sort_order")
+  news      News   @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  @@map("news_images")
+}
