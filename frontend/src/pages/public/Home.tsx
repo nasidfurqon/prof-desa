@@ -10,7 +10,6 @@ import { CardSkeletonGrid } from "../../components/public/Skeleton";
 import { EmptyState, ErrorState } from "../../components/public/StateViews";
 import { resolveUploadUrl } from "../../api/axios";
 import { Reveal } from "../../components/motion/Reveal";
-import { ExploreCarousel, ExploreItem } from "../../components/public/ExploreCarousel";
 import { StatsSection } from "../../components/public/StatsSection";
 
 export default function Home() {
@@ -31,37 +30,6 @@ export default function Home() {
     sortBy: "publishedAt",
     sortOrder: "desc",
   });
-
-  const exploreItems: ExploreItem[] = [
-    ...(orgData?.data.map((org) => ({
-      id: `org-${org.id}`,
-      to: `/organisasi/${org.id}`,
-      title: org.name,
-      category: "Organisasi",
-      thumbnail: org.thumbnail,
-    })) ?? []),
-    ...(umkmData?.data.map((umkm) => ({
-      id: `umkm-${umkm.id}`,
-      to: `/umkm/${umkm.id}`,
-      title: umkm.name,
-      category: "UMKM",
-      thumbnail: umkm.thumbnail,
-    })) ?? []),
-    ...(schoolData?.data.map((school) => ({
-      id: `school-${school.id}`,
-      to: `/sekolah/${school.id}`,
-      title: school.name,
-      category: "Sekolah",
-      thumbnail: school.thumbnail,
-    })) ?? []),
-    ...(newsData?.data.map((item) => ({
-      id: `news-${item.id}`,
-      to: `/berita/${item.slug}`,
-      title: item.title,
-      category: "Berita",
-      thumbnail: item.thumbnail,
-    })) ?? []),
-  ];
 
   const stats = [
     { label: "Organisasi", value: orgData?.meta.total ?? 0 },
@@ -121,18 +89,6 @@ export default function Home() {
         </Reveal>
         <StatsSection stats={stats} />
       </section>
-{/* 
-      {exploreItems.length > 0 && (
-        <section className="bg-white py-12">
-          <div className="mx-auto max-w-6xl px-4">
-            <Reveal>
-              <h2 className="mb-2 text-xl font-semibold">Jelajahi Desa Bawu</h2>
-              <p className="mb-2 text-sm text-secondary-dark/60">Sekilas organisasi, UMKM, sekolah, dan berita di Desa Bawu.</p>
-            </Reveal>
-          </div>
-          <ExploreCarousel items={exploreItems} />
-        </section>
-      )} */}
 
       <section className="mx-auto max-w-6xl px-4 py-12">
         <Reveal>
